@@ -1,5 +1,8 @@
+const path = require("node:path");
+
 const express = require("express");
 const morgan = require("morgan");
+
 const dbConnection = require("./config/database");
 const categoryRoute = require("./routes/categoryRoute");
 const _Error = require("./utils/Error");
@@ -7,6 +10,7 @@ const globalError = require("./middlewares/errorMiddlware");
 const subCategoryRoute = require("./routes/subCategoryRoute");
 const brandRoute = require("./routes/brandRoute")
 const productRoute = require("./routes/productRoute");
+
 
 require("dotenv").config();
 dbConnection();
@@ -22,6 +26,7 @@ if (process.env.NODE_ENV === "development") {
 
 app.set("query parser", "extended");
 app.use(express.json())
+app.use(express.static(path.join(__dirname , "uploads")));
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1/categories", categoryRoute);
 app.use("/api/v1/subCategories", subCategoryRoute);

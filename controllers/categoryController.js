@@ -1,31 +1,29 @@
-const Category = require("../models/categoryModel");
-const _Error = require("../utils/Error");
-const factory = require("./handlersFactory");
-const multer  = require("multer");
+const sharp = require("sharp");
+const asyncHandler = require("express-async-handler");
 const guid = require("guid");
 
-const storage = multer.diskStorage({
-    destination:function(req , file , cb){
-        cb(null , "uploads/categories");
-    },
-    filename:function(req , file , cb){
-        const ext = file.mimetype.split("/")[1];
-        cb(null , `${guid.create()}.${ext}`);
+
+const {uploadSingleImage} = require("../middlewares/uploadImageMiddleware");
+const factory = require("./handlersFactory");
+const Category = require("../models/categoryModel");
+
+
+
+
+exports.uploadCategoryImage = uploadSingleImage("image");
+
+exports.resizeImage = asyncHandler(async (req, res, next) => {
+    if (req.file) {
+        const filename = `category-${guid.create()}.png`
+        await sharp(req.file.buffer)
+            .resize(600, 600)
+            .toFormat("png")
+            .png({ quality: 90 })
+            .toFile(`uploads/categories/${filename}`);
+        req.body.image = filename;
     }
+    next();
 })
-
-const fileFilter = function(req , file , cb){
-    const type = file.mimetype.split("/")[0];
-    if(type === "image")
-        cb(null , true);
-    else
-        cb (new _Error("Only image allowed") , 400);
-}
-
-
-const upload = multer({storage,fileFilter})
-
-exports.uploadCategoryImage = upload.single("image");
 
 exports.createCategory = factory.createOne(Category);
 

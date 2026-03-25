@@ -1,10 +1,28 @@
-const slugify = require("slugify");
-const asyncHandler = require('express-async-handler');
-const Brand = require("../models/brandModel");
-const _Error = require("../utils/Error");
-const ApiFeatures =require("../utils/apiFeatures");
-const factory = require("./handlersFactory");
 
+const asyncHandler = require('express-async-handler');
+const sharp = require("sharp");
+const guid = require("guid");
+
+
+const factory = require("./handlersFactory");
+const {uploadSingleImage} = require("../middlewares/uploadImageMiddleware");
+const Brand = require("../models/brandModel");
+
+
+exports.uploadBrandImage = uploadSingleImage("image");
+
+exports.resizeImage = asyncHandler(async (req, res, next) => {
+    if (req.file) {
+        const filename = `brand-${guid.create()}.png`
+        await sharp(req.file.buffer)
+            .resize(600, 600)
+            .toFormat("png")
+            .png({ quality: 90 })
+            .toFile(`uploads/brands/${filename}`);
+        req.body.image = filename;
+    }
+    next();
+})
 
 exports.createBrand = factory.createOne(Brand);
 

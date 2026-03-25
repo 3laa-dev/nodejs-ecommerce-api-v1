@@ -1,5 +1,6 @@
 const { Schema, model } = require("mongoose");
 
+
 const categorySchema = new Schema(
   {
     name: {
@@ -18,6 +19,15 @@ const categorySchema = new Schema(
   { timestamps: true },
   
 );
+
+const setImageUrl = doc=> {
+  if(doc.image){
+    doc.image = `${process.env.BASE_URL}/categories/${doc.image}`;
+  }
+
+}
+categorySchema.post("init" , setImageUrl)
+categorySchema.post('save', setImageUrl);
 
 const CategoryModel = model("Category", categorySchema);
 

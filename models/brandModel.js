@@ -13,12 +13,23 @@ const brandSchema = new Schema(
       type: String,
       lowercase: true,
     },
-    image:String 
+    image: String
   },
   { timestamps: true },
-  
+
 );
 
+const setImageUrl = doc => {
+  if (doc.image) {
+    const imageUrl = `${process.env.BASE_URL}/brands/${doc.image}`
+    doc.image = imageUrl;
+  }
+
+}
+brandSchema.post("init", setImageUrl)
+brandSchema.post('save', setImageUrl);
+
 const brandModel = model("Brand", brandSchema);
+
 
 module.exports = brandModel;

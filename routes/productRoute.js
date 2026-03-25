@@ -15,11 +15,11 @@ const router = Router();
 
 
 router.route("/")
-    .post(createProductValidator, controller.createProduct)
+    .post(controller.uploadProductImages , controller.resizeProductImages ,createProductValidator, controller.createProduct)
     .get(controller.getProducts);
 router.route("/:id")
     .get(getProductValidator,controller.getProduct)
-    .put(updateProductValidator,controller.updateProduct)
+    .put(controller.uploadProductImages , controller.resizeProductImages ,updateProductValidator,controller.updateProduct)
     .delete( deleteProductValidator,controller.deleteProduct);
 
 module.exports = router;

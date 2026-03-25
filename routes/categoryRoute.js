@@ -19,11 +19,11 @@ router.use("/:categoryId/subCategories" , subCategoryRoute);
 
 
 router.route("/")
-    .post(controller.uploadCategoryImage ,createCategoryValidator,controller.createCategory)
+    .post(controller.uploadCategoryImage , controller.resizeImage , createCategoryValidator,controller.createCategory)
     .get(controller.getCategories);
 router.route("/:id")
     .get(getCategoryValidator, controller.getCategory)
-    .put(updateCategoryValidator, controller.updateCategory)
+    .put(controller.uploadCategoryImage , controller.resizeImage  , updateCategoryValidator, controller.updateCategory)
     .delete(deleteCategoryValidator, controller.deleteCategory);
 
 module.exports = router;

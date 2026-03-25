@@ -16,7 +16,7 @@ const router = Router();
 
 
 router.route("/")
-    .post(createBrandValidator, controller.createBrand)
+    .post(controller.uploadBrandImage  , controller.resizeImage , createBrandValidator, controller.createBrand)
     .get(controller.getBrands);
 router.route("/:id")
     .get(getBrandValidator, controller.getBrand)

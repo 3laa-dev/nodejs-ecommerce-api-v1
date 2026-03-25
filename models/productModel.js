@@ -1,4 +1,4 @@
-const {Schema , Model, model} = require("mongoose");
+const {Schema, model} = require("mongoose");
 
 const productSchema = Schema({
     title:{
@@ -71,5 +71,22 @@ const productSchema = Schema({
     }
 },
 {timestamps:true}) ;
+
+const setImageUrl = doc=> {
+  if(doc.imageCover){
+    doc.imageCover = `${process.env.BASE_URL}/products/${doc.imageCover}`;
+  }
+  if(doc.images){
+    let images = [];
+    doc.images.forEach(image =>{
+        const imageUrl = `${process.env.BASE_URL}/products/${image}`
+        images.push(imageUrl);
+    })
+    doc.images = images;
+  }
+
+}
+productSchema.post("init" , setImageUrl);
+productSchema.post('save', setImageUrl);
 
 module.exports = model("Product" , productSchema );

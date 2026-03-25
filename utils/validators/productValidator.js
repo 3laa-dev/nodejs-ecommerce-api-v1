@@ -60,6 +60,7 @@ exports.createProductValidator = [
         .isArray()
         .withMessage("colors should be array of string"),
     body("imageCover")
+        .optional()
         .notEmpty()
         .withMessage("Product cover image is required"),
     body("images")
@@ -94,7 +95,7 @@ exports.createProductValidator = [
             const subCatIds = subCat.map(e => e = e._id.toString());
             arr.map(e => {
                 if (!subCatIds.includes(e))
-                    throw new Error("This sub category is not include tu this category") // language
+                    throw new Error("This sub category is not include to this category") // language
             })
             return false
         }),
