@@ -1,0 +1,39 @@
+const { Schema, model } = require("mongoose");
+const bcrypt = require("bcrypt");
+
+
+const userSchema = new Schema(
+    {
+        name: {
+            type: String,
+            trim: true,
+            required: [true, "name required"]
+        },
+        slug: {
+            type: String,
+            lowercase: true
+        },
+        email: {
+            type: String,
+            required: true,
+            unique: true
+        },
+        phone: String,
+        profileImage: String,
+        password: {
+            type: String,
+            requierd: [true, "password is required"],
+            minlength: [8, "too short password"]
+        },
+        role: {
+            type: String,
+            enum: ["admin" , "user"],
+            default:"user"
+        }
+    }, { timestamps: true });
+
+    userSchema.pre("save" ,async function(next){
+        this.password = await bcrypt.hash(this.password , 10);
+    })
+
+module.exports = model("user" , userSchema);

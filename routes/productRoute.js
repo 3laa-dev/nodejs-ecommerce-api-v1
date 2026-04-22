@@ -7,7 +7,7 @@ const{
     createProductValidator,
     deleteProductValidator,
     updateProductValidator
-}=require("../utils/validators/productValidator");
+} = require("../utils/validators/productValidator");
 
 
 
