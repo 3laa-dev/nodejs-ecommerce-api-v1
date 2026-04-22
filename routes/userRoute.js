@@ -4,7 +4,8 @@ const controller = require("../controllers/userControl");
 const {createUserValidator,
        deleteUserValidator , 
        updateUserValidator ,
-       getUserValidator
+       getUserValidator , 
+       updatePasswordValidator
 } = require("../utils/validators/userValidator");
 
 
@@ -20,5 +21,6 @@ router.route("/:id")
     .get( getUserValidator , controller.getUser)
     .put( updateUserValidator , controller.updateUser)
     .delete( deleteUserValidator , controller.deleteUser);
+router.put("/changePassword/:id" , updatePasswordValidator , controller.changeUserPassword);
 
 module.exports = router;
