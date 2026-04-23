@@ -21,12 +21,12 @@ exports.signup = asyncHandler(async (req, res, next) => {
 exports.login = asyncHandler(async (req, res, next) => {
     const { email, password } = req.body;
     if (!(email && password))
-        return next(new _Error("Enter Email and password"))
+        return next(new _Error("Enter Email and password" , 401))
 
     const user = await User.findOne({ email });
     
     if (!(user && await bcrypt.compare(password, user.password)))
-        return next(new _Error("Incorrect Email or Password"));
+        return next(new _Error("Incorrect Email or Password" , 401));
 
 
     const token = await generateJWT(user._id);
