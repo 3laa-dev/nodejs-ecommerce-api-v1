@@ -1,7 +1,7 @@
-
 const asyncHandler = require('express-async-handler');
 const sharp = require("sharp");
 const guid = require("guid");
+
 
 
 const factory = require("./handlersFactory");
@@ -9,6 +9,7 @@ const {uploadSingleImage} = require("../middlewares/uploadImageMiddleware");
 const Brand = require("../models/brandModel");
 
 
+ 
 exports.uploadBrandImage = uploadSingleImage("image");
 
 exports.resizeImage = asyncHandler(async (req, res, next) => {

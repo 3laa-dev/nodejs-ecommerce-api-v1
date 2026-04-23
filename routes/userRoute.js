@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const controller = require("../controllers/userControl");
+const controller = require("../controllers/userController");
 
 const {createUserValidator,
        deleteUserValidator , 
