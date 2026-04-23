@@ -6,7 +6,7 @@ const validatorMiddlware = require("../../middlewares/validatorMiddleware");
 const {  body } = require("express-validator");
 const User = require("../../models/userModel")
 
-exports.createUserValidator = [
+exports.signupValidator = [
 
 
     body("name")
@@ -44,6 +44,21 @@ exports.createUserValidator = [
                 throw new Error("Passord confirmation incorret")
             return true
         }),
+
+    validatorMiddlware
+]
+
+exports.loginValidator = [
+    body("email")
+        .notEmpty()
+        .withMessage("Email required")
+        .isEmail()
+        .withMessage("invalid email address"),
+    body("password")
+        .notEmpty()
+        .withMessage("Password is required")
+        .isLength({ min: 8 })
+        .withMessage("Password must be at least 8 characters"),
 
     validatorMiddlware
 ]
