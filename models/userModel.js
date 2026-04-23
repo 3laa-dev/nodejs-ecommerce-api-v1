@@ -25,6 +25,7 @@ const userSchema = new Schema(
             requierd: [true, "password is required"],
             minlength: [8, "too short password"]
         },
+        passwordChangedAt:Date,
         role: {
             type: String,
             enum: ["admin" , "user"],
