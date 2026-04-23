@@ -7,7 +7,7 @@ const _Error = require("../utils/Error");
 
 const generateJWT = async (payload) => {
     
-    const token = await jwt.sign({ userId: payload }, process.env.JWT_SECRET_KEY);
+    const token = await jwt.sign({ userId: payload }, process.env.JWT_SECRET_KEY , {expiresIn:"90d"});
     return token;
 }
 
@@ -32,4 +32,29 @@ exports.login = asyncHandler(async (req, res, next) => {
     const token = await generateJWT(user._id);
     res.json({data:user , token})
 
+})
+
+exports.protect = asyncHandler(async (req, res, next) => {
+    let token ;
+    if(req.headers.authorization && req.headers.authorization.startsWith("Bearer"))
+        token = req.headers.authorization.split(" ")[1];
+    if(!token)
+        return next (new _Error("You are not login, Please login to get access this route", 401));
+
+    const decodedToken = jwt.verify(token , process.env.JWT_SECRET_KEY);
+    
+    const user = await User.findById(decodedToken.userId);
+    if(!user)
+        return next(new _Error("The user that belong to this token does no longer exist" , 401));
+
+    if(user.passwordChangedAt){
+        const passChangedTimestamp = parseInt(user.passwordChangedAt.getTime() / 1000 , 10);
+        if(passChangedTimestamp > decodedToken.iat)
+            return next(new _Error("User recently changed his password. please login again..." , 401));
+    }
+
+    req.user = user;
+
+    next();
+    
 })

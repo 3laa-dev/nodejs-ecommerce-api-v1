@@ -47,7 +47,10 @@ exports.updateUser = asyncHandler(async (req, res) => {
 
 exports.changeUserPassword = asyncHandler(async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(req.params.id,
-        { password: await bcrypt.hash(req.body.password , 10) },
+        { 
+            password: await bcrypt.hash(req.body.password , 10) , 
+            passwordChangedAt:Date.now()
+         },
         { returnDocument: "after" }
     )
      res.json(updatedUser);

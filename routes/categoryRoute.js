@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const controller = require("../controllers/categoryController");
-
+const authController = require("../controllers/authController");
 
 const {
     getCategoryValidator,
@@ -19,7 +19,7 @@ router.use("/:categoryId/subCategories" , subCategoryRoute);
 
 
 router.route("/")
-    .post(controller.uploadCategoryImage , controller.resizeImage , createCategoryValidator,controller.createCategory)
+    .post(authController.protect ,controller.uploadCategoryImage , controller.resizeImage , createCategoryValidator,controller.createCategory)
     .get(controller.getCategories);
 router.route("/:id")
     .get(getCategoryValidator, controller.getCategory)
