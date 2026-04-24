@@ -19,7 +19,14 @@ router.use("/:categoryId/subCategories" , subCategoryRoute);
 
 
 router.route("/")
-    .post(authController.protect ,controller.uploadCategoryImage , controller.resizeImage , createCategoryValidator,controller.createCategory)
+    .post(
+        authController.protect ,
+        authController.allowedTo("admin" , "manager") , 
+        controller.uploadCategoryImage ,
+         controller.resizeImage , 
+         createCategoryValidator,
+         controller.createCategory
+        )
     .get(controller.getCategories);
 router.route("/:id")
     .get(getCategoryValidator, controller.getCategory)
