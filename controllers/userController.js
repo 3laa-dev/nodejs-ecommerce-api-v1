@@ -32,15 +32,17 @@ exports.getUsers = factory.getAll(User);
 exports.getUser = factory.getOne(User);
 
 exports.updateUser = asyncHandler(async (req, res) => {
-    const updatedUser = await User.findByIdAndUpdate(req.params.id,
-        {
+    const newData =  {
             name: req.body.name,
-            slug: slugify(req.body.name),
             email: req.body.email,
             phone: req.body.phone,
             profileImage: req.body.profileImage,
             role: req.body.role
-        },
+        }
+    if(req.body.name)
+        newData.slug = slugify(req.body.name);
+    const updatedUser = await User.findByIdAndUpdate(req.params.id,
+        newData,
         { returnDocument: "after" })
     res.json(updatedUser);
 })

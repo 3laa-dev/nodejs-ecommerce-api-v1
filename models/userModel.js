@@ -28,7 +28,7 @@ const userSchema = new Schema(
         passwordChangedAt:Date,
         role: {
             type: String,
-            enum: ["admin" , "user"],
+            enum: ["admin" , "manager" , "user"],
             default:"user"
         }
     }, { timestamps: true });
