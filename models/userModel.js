@@ -25,16 +25,19 @@ const userSchema = new Schema(
             requierd: [true, "password is required"],
             minlength: [8, "too short password"]
         },
-        passwordChangedAt:Date,
+        passwordChangedAt: Date,
+        passwordResetCode: String,
+        passwordResetExpires: Date,
+        passwordResetVerified: Boolean,
         role: {
             type: String,
-            enum: ["admin" , "manager" , "user"],
-            default:"user"
+            enum: ["admin", "manager", "user"],
+            default: "user"
         }
     }, { timestamps: true });
 
-    userSchema.pre("save" ,async function(next){
-        this.password = await bcrypt.hash(this.password , 10);
-    })
+userSchema.pre("save", async function (next) {
+    this.password = await bcrypt.hash(this.password, 10);
+})
 
-module.exports = model("user" , userSchema);
+module.exports = model("user", userSchema);

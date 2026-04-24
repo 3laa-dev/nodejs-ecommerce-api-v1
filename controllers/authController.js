@@ -1,13 +1,16 @@
+const crypto = require("crypto");
+
 const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const User = require("../models/userModel");
 const _Error = require("../utils/Error");
+const sendMail = require("../utils/sendEmail");
 
 const generateJWT = async (payload) => {
-    
-    const token = await jwt.sign({ userId: payload }, process.env.JWT_SECRET_KEY , {expiresIn:"90d"});
+
+    const token = await jwt.sign({ userId: payload }, process.env.JWT_SECRET_KEY, { expiresIn: "90d" });
     return token;
 }
 
@@ -21,47 +24,81 @@ exports.signup = asyncHandler(async (req, res, next) => {
 exports.login = asyncHandler(async (req, res, next) => {
     const { email, password } = req.body;
     if (!(email && password))
-        return next(new _Error("Enter Email and password" , 401))
+        return next(new _Error("Enter Email and password", 401))
 
     const user = await User.findOne({ email });
-    
+
     if (!(user && await bcrypt.compare(password, user.password)))
-        return next(new _Error("Incorrect Email or Password" , 401));
+        return next(new _Error("Incorrect Email or Password", 401));
 
 
     const token = await generateJWT(user._id);
-    res.json({data:user , token})
+    res.json({ data: user, token })
 
 })
 
 exports.protect = asyncHandler(async (req, res, next) => {
-    let token ;
-    if(req.headers.authorization && req.headers.authorization.startsWith("Bearer"))
+    let token;
+    if (req.headers.authorization && req.headers.authorization.startsWith("Bearer"))
         token = req.headers.authorization.split(" ")[1];
-    if(!token)
-        return next (new _Error("You are not login, Please login to get access this route", 401));
+    if (!token)
+        return next(new _Error("You are not login, Please login to get access this route", 401));
 
-    const decodedToken = jwt.verify(token , process.env.JWT_SECRET_KEY);
-    
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
     const user = await User.findById(decodedToken.userId);
-    if(!user)
-        return next(new _Error("The user that belong to this token does no longer exist" , 401));
+    if (!user)
+        return next(new _Error("The user that belong to this token does no longer exist", 401));
 
-    if(user.passwordChangedAt){
-        const passChangedTimestamp = parseInt(user.passwordChangedAt.getTime() / 1000 , 10);
-        if(passChangedTimestamp > decodedToken.iat)
-            return next(new _Error("User recently changed his password. please login again..." , 401));
+    if (user.passwordChangedAt) {
+        const passChangedTimestamp = parseInt(user.passwordChangedAt.getTime() / 1000, 10);
+        if (passChangedTimestamp > decodedToken.iat)
+            return next(new _Error("User recently changed his password. please login again...", 401));
     }
 
     req.user = user;
 
     next();
-    
+
 })
 
-exports.allowedTo = (...roles)=>
-     (req , res , next)=>{
-        if(!roles.includes(req.user.role))
-            return next(new _Error("You are not allowed to access this route" , 403));
+exports.allowedTo = (...roles) =>
+    (req, res, next) => {
+        if (!roles.includes(req.user.role))
+            return next(new _Error("You are not allowed to access this route", 403));
         next();
     }
+
+exports.forgotPassword = asyncHandler(async (req, res, next) => {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user)
+        return next(new _Error("This user is not found"));
+
+
+    const resetCode = Math.floor((Math.random() * 1000000) + 1).toString();
+    const hashedResetCode = crypto
+        .createHash('sha256')
+        .update(resetCode)
+        .digest('hex');
+    user.passwordResetCode = hashedResetCode;
+    user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+    user.passwordResetVerified = false;
+
+    user.save();
+
+
+    try {
+        sendMail({ message: `Hi ${user.name} your reset code is: ${resetCode}`, email: user.email, subject: "this code invalid on 10 minuts" });
+    } catch (err) {
+        user.passwordResetCode = undefined;
+        user.passwordResetExpires = undefined;
+        user.passwordResetVerified = undefined;
+        await user.save();
+        return next(new _Error("Error in sending email", 500));
+    }
+
+    res
+        .status(201)
+        .json({ status: "success", message: "Reset Code sent to email" })
+
+})
