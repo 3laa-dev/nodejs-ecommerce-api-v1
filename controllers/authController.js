@@ -75,7 +75,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
         return next(new _Error("This user is not found"));
 
 
-    const resetCode = Math.floor((Math.random() * 1000000) + 1).toString();
+    const resetCode = crypto.randomInt(100000, 999999).toString();;
     const hashedResetCode = crypto
         .createHash('sha256')
         .update(resetCode)
@@ -125,4 +125,28 @@ exports.verifyPassResetCode = asyncHandler(async (req, res, next) => {
     await user.save();
 
     res.status(200).json({ status: "success" });
+})
+
+
+exports.resetPassword = asyncHandler(async (req , res , next)=>{
+
+    const user = await User.findOne({email:req.body.email})
+    if(!user)
+        return next (new _Error("No User with this email" , 404))
+
+    if(!user.passwordResetVerified)
+        return next(new _Error("Reset Code Not Verified" , 400));
+
+    
+    user.password = req.body.newPassword;
+    user.passwordResetCode = undefined;
+    user.passwordResetExpires = undefined;
+    user.passwordResetVerified = undefined ;
+
+    await user.save();
+    
+    const token = await generateJWT(user._id);
+
+    res.status(200).json({status:"success" , token})
+
 })
