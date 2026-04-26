@@ -121,3 +121,33 @@ exports.deleteUserValidator = [
         .withMessage("Invalid User id format"),
     validatorMiddlware
 ]
+exports.updateLoggedUserValidator = [
+    
+
+    body("name")
+        .optional()
+        .notEmpty()
+        .withMessage("User required")
+        .isLength({ min: 3 })
+        .withMessage("Too short User name")
+        .custom((val, { req }) => {
+            req.body.slug = slugify(val)
+            return true;
+        }),
+    body("email")
+        .optional()
+        .notEmpty()
+        .withMessage("Email required")
+        .isEmail()
+        .withMessage("invalid email address")
+        .custom(async val => {
+            await User.findOne({ email: val })
+                .then(user => {
+                    if (user)
+                        return Promise.reject(new Error("Email already in user"));
+                })
+
+        }),
+
+    validatorMiddlware
+]
