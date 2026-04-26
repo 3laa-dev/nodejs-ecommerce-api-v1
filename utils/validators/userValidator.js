@@ -8,7 +8,7 @@ const User = require("../../models/userModel")
 exports.getUserValidator = [
     param("id")
         .isMongoId()
-        .withMessage("Invalid category id format"),
+        .withMessage("Invalid user id format"),
     validatorMiddlware
 ]
 exports.createUserValidator = [

@@ -8,11 +8,7 @@ const User = require("../models/userModel");
 const _Error = require("../utils/Error");
 const sendMail = require("../utils/sendEmail");
 
-const generateJWT = async (payload) => {
-
-    const token = await jwt.sign({ userId: payload }, process.env.JWT_SECRET_KEY, { expiresIn: "90d" });
-    return token;
-}
+const generateJWT = require("../utils/generateToken");
 
 exports.signup = asyncHandler(async (req, res, next) => {
     const { name, email, password } = req.body;
@@ -150,3 +146,4 @@ exports.resetPassword = asyncHandler(async (req , res , next)=>{
     res.status(200).json({status:"success" , token})
 
 })
+
