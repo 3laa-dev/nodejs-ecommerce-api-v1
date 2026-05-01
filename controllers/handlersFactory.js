@@ -42,8 +42,11 @@ exports.getAll = Model => asyncHandler(async (req, res) => {
 }
 )
 
-exports.getOne = Model => asyncHandler(async (req, res, next) => {
-  const document = await Model.findById(req.params.id);
+exports.getOne = (Model , populationOpt) => asyncHandler(async (req, res, next) => {
+  let query  =  Model.findById(req.params.id);
+  if(populationOpt)
+    query = query.populate(populationOpt);
+  const document = await query;
   if (!document)
     return next(new _Error(`No document for this id ${req.params.id}`, 404));
   res.status(200).json({ data: document });

@@ -29,6 +29,7 @@ const setImageUrl = doc=> {
 categorySchema.post("init" , setImageUrl)
 categorySchema.post('save', setImageUrl);
 
+
 const CategoryModel = model("Category", categorySchema);
 
 module.exports = CategoryModel;

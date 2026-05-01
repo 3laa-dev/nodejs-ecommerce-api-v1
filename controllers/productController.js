@@ -1,10 +1,10 @@
 
-const asyncHandler = require('express-async-handler');
+
 
 
 const Product = require("../models/productModel");
 const _Error = require("../utils/Error");
-const {uploadMixOfImages} = require("../middlewares/uploadImageMiddleware");
+
 const factory = require("./handlersFactory");
 
 const sharp = require("sharp");
@@ -66,11 +66,11 @@ exports.resizeProductImages = async (req, res, next) => {
     next();
 }
 
-exports.createProduct = factory.createOne(Product);
+exports.createProduct = factory.createOne(Product );
 
 exports.getProducts = factory.getAll(Product);
 
-exports.getProduct = factory.getOne(Product)
+exports.getProduct = factory.getOne(Product, "reviews")
 // .populate({ path: "category", select: "name -_id" });
 exports.updateProduct = factory.updateOne(Product)
 

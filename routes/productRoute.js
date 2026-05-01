@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const controller = require("../controllers/productController");
-
+const Review = require("./reviewRoute");
 
 const{
     getProductValidator,
@@ -13,7 +13,7 @@ const{
 
 const router = Router();
 
-
+router.use("/:productId/reviews" , Review);
 router.route("/")
     .post(controller.uploadProductImages , controller.resizeProductImages ,createProductValidator, controller.createProduct)
     .get(controller.getProducts);
