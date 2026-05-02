@@ -30,24 +30,28 @@ exports.createOne = Model => asyncHandler(async (req, res) => {
 
 exports.getAll = Model => asyncHandler(async (req, res) => {
     const countDocuments = await Model.countDocuments();
-    const apiFeatures = new ApiFeatures(Model.find(), req.query)
+
+    const apiFeatures = new ApiFeatures(
+        Model.find((typeof(req.filter) === "function" ) ? {} : req.filter),
+        req.query
+    )
         .paginate(countDocuments)
         .filter()
         .search()
         .sort()
         .limitFields();
     const { mongooseQuery, paginationResult } = apiFeatures;
-    const categories = await mongooseQuery
+    const categories = await mongooseQuery;
     res.status(200).json({ results: categories.length, paginationResult, data: categories })
 }
 )
 
-exports.getOne = (Model , populationOpt) => asyncHandler(async (req, res, next) => {
-  let query  =  Model.findById(req.params.id);
-  if(populationOpt)
-    query = query.populate(populationOpt);
-  const document = await query;
-  if (!document)
-    return next(new _Error(`No document for this id ${req.params.id}`, 404));
-  res.status(200).json({ data: document });
+exports.getOne = (Model, populationOpt) => asyncHandler(async (req, res, next) => {
+    let query = Model.findById(req.params.id);
+    if (populationOpt)
+        query = query.populate(populationOpt);
+    const document = await query;
+    if (!document)
+        return next(new _Error(`No document for this id ${req.params.id}`, 404));
+    res.status(200).json({ data: document });
 })

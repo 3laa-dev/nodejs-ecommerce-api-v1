@@ -17,11 +17,16 @@ const{
     deleteSubCategoryValidator
 } = require("../utils/validators/subCategoryValidator");
 
+const createFilterObject = (req , res , next)=>{
+        if(req.params.categoryId)
+            req.filter = {category : req.params.categoryId};
+        next();
+}
 
 
 router.route("/")
     .post(createSubCategoryValidator, addCategoryIdToBody ,createSubCategory)
-    .get(getSubCategories);
+    .get(createFilterObject,getSubCategories);
 router.route("/:id")
     .get(getSubCategoryValidator,getSubCategory)
     .put(updateSubCategoryValidator , updateSubCategory)

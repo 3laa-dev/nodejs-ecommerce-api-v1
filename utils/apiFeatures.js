@@ -6,11 +6,12 @@ class ApiFeatures {
 
     filter() {
         let filterObj = { ...this.queryString };
-        const excludesFields = ["limit", "page", "sort", "fileds","keyword"];
+        const excludesFields = ["limit", "page", "sort", "fileds", "keyword"];
         excludesFields.forEach(item => { delete filterObj[`${item}`] })
         filterObj = JSON.stringify(filterObj);
         filterObj = filterObj.replace(/\b(gte|gt|lt|lte)\b/g, match => `$${match}`)
         filterObj = JSON.parse(filterObj);
+
         this.mongooseQuery = this.mongooseQuery.find(filterObj);
         return this
     }
@@ -27,13 +28,13 @@ class ApiFeatures {
     }
 
     limitFields() {
-        let fileds;
-        if (this.queryString.fileds) {
-             fileds = this.queryString.fileds.split(",").join(" ")
+        let fields;
+        if (this.queryString.fields) {
+            fields = this.queryString.fields.split(",").join(" ")
         } else {
-            fileds = "-__v";
+            fields = "-__v";
         }
-        this.mongooseQuery = this.mongooseQuery.select(fileds);
+        this.mongooseQuery = this.mongooseQuery.select(fields);
         return this;
     }
 
@@ -47,7 +48,10 @@ class ApiFeatures {
                     { name: { $regex: this.queryString.keyword, $options: "i" } }
                 ]
             }
-            this.mongooseQuery = this.mongooseQuery.find(filterObj)
+            this.mongooseQuery = this.mongooseQuery.find({
+                ...this.mongooseQuery.getQuery(),
+                ...filterObj
+            });
         }
 
         return this;
@@ -60,8 +64,8 @@ class ApiFeatures {
         const pagination = {};
         pagination.currentPage = page;
         pagination.limit = limit;
-        pagination.numberOfPages =Math.ceil( countDocuments / limit);
-        
+        pagination.numberOfPages = Math.ceil(countDocuments / limit);
+
         this.paginationResult = pagination;
         this.mongooseQuery = this.mongooseQuery.skip(skip).limit(limit);
         return this;
