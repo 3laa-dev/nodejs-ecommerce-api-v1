@@ -33,7 +33,13 @@ const userSchema = new Schema(
             type: String,
             enum: ["admin", "manager", "user"],
             default: "user"
-        }
+        },
+        wishlist:[
+            {
+                type:Schema.ObjectId,
+                ref:"Product"
+            }
+        ]
     }, { timestamps: true });
 
 userSchema.pre("save", async function (next) {
