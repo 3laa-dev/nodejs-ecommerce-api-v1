@@ -52,10 +52,13 @@ exports.deleteReviewValidator = [
         .isMongoId()
         .withMessage("Invalid Brand id format")
         .custom(async (val, { req }) => {
+            const rev = await Review.findOne({ _id: val })
             if (req.user.role === "user") {
-                const rev = await Review.findOne({ _id: val })
-                if (rev.user.toString() !== req.user._id.toString())
-                    throw new Error("Tou are not allowed to delete this review");
+                if (!rev) {
+                    throw new Error("Review not found");
+                }
+                if (rev.user._id.toString() !== req.user._id.toString())
+                    throw new Error("You are not allowed to delete this review");
             }
             return true;
         })

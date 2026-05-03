@@ -18,6 +18,7 @@ exports.updateOne = Model => asyncHandler(async (req, res, next) => {
     );
     if (!document)
         return next(new _Error(`No document for this id ${req.params.id}`, 404));
+    document.save();
     res.status(200).json({ data: document })
 
 })

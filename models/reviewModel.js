@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const Product =require("./productModel");
 
 const reviewSchema = new Schema(
     {
@@ -25,8 +26,42 @@ const reviewSchema = new Schema(
     }
 )
 
-reviewSchema.pre(/^find/ , function(){
-    this.populate({path:"user" ,select:"name"});
-    
+reviewSchema.statics.calcAverageRatingsAndQuantity = async function (productId) {
+    const result = await this.aggregate([
+        {
+            $match: { product: productId }
+        },
+        {
+            $group: {
+                _id: "$product",
+                avgRatings: { $avg: "$ratings" },
+                ratingsQuantity: { $sum: 1 }
+            }
+        }
+    ])
+    if (result.length > 0) {
+        await Product.findByIdAndUpdate(productId, {
+            ratingsAverage: result[0].avgRatings,
+            ratingsQuantity: result[0].ratingsQuantity,
+        });
+    } else {
+        await Product.findByIdAndUpdate(productId, {
+            ratingsAverage: 0,
+            ratingsQuantity: 0,
+        });
+    }
+}
+
+reviewSchema.post('save', async function () {
+    await this.constructor.calcAverageRatingsAndQuantity(this.product);
+});
+reviewSchema.post('findOneAndDelete', async function (doc) {
+    if (doc) {
+        await doc.constructor.calcAverageRatingsAndQuantity(doc.product);
+    }
+});
+reviewSchema.pre(/^find/, function () {
+    this.populate({ path: "user", select: "name" });
+
 })
 module.exports = model('review', reviewSchema);

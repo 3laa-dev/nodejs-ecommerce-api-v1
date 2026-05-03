@@ -1,4 +1,4 @@
-require("./reviewModel");
+// require("./reviewModel");
 
 const { Schema, model } = require("mongoose");
 
