@@ -39,6 +39,16 @@ const userSchema = new Schema(
                 type:Schema.ObjectId,
                 ref:"Product"
             }
+        ],
+        addresses:[
+            {
+                id:{type:Schema.Types.ObjectId},
+                alias:String , 
+                details:String , 
+                phone:String , 
+                sity:String ,
+                postalCode:String 
+            }
         ]
     }, { timestamps: true });
 
