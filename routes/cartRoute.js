@@ -8,8 +8,11 @@ router
     .post(controller.addProductToCart)
     .get(controller.getLoggedUserCart)
     .delete(controller.clearCart);
+router.put("/applyCoupon" , controller.applyCoupon);
 router
     .route("/:id")
     .delete(controller.deleteSpecificCartItem)
     .put(controller.updateCartItemQuantity);
+
+router.put("/applyCoupon" , controller.applyCoupon);
 module.exports = router;
